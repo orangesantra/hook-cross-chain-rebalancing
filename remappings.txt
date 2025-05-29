@@ -1,0 +1,4 @@
+@openzppelin/=lib/openzppelin-contracts/contracts/
+@ccip/=lib/ccip/
+permit2/=lib/v4-periphery/lib/permit2/
+v4-periphery/=lib/v4-periphery/

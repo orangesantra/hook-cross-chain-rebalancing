@@ -1,66 +1,60 @@
-## Foundry
+### Summary
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This Uniswap V4 hook is about cross-chain liquidity rebalancing and arbitrage benifits. Though the token cross-chain rebasing part is learned and executed from this [repo].(https://github.com/Cyfrin/foundry-cross-chain-rebase-token-cu)
 
-Foundry consists of:
+It automatically detects arbitrage opportunities and pool imbalances, then triggers cross-chain rebalancing operations to maintain optimal liquidity efficiency.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+### Hook permissions
 
-## Documentation
+- **beforeSwap**
+- **afterSwap**
+- **beforeAddLiquidity**
+- **beforeRemoveLiquidity**
 
-https://book.getfoundry.sh/
+### Hook Flow
 
-## Usage
+```mermaid
+sequenceDiagram
+    participant User
+    participant PoolManager
+    participant RebaseTokenHook
+    participant CCIP
+    participant RemoteChain
 
-### Build
-
-```shell
-$ forge build
+    User->>PoolManager: Initiate Swap
+    PoolManager->>RebaseTokenHook: beforeSwap()
+    
+    RebaseTokenHook->>RebaseTokenHook: Check arbitrage opportunities
+    RebaseTokenHook->>RebaseTokenHook: Detect price differences
+    
+    alt Price difference > 1%
+        RebaseTokenHook->>RebaseTokenHook: Calculate imbalance
+        RebaseTokenHook->>CCIP: Send cross-chain message
+        CCIP->>RemoteChain: Trigger rebalancing
+        RemoteChain-->>CCIP: Confirm rebalancing
+        CCIP-->>RebaseTokenHook: Rebalancing complete
+    end
+    
+    RebaseTokenHook-->>PoolManager: Continue swap
+    PoolManager->>RebaseTokenHook: afterSwap()
+    RebaseTokenHook->>RebaseTokenHook: Update counters
+    PoolManager-->>User: Swap complete
 ```
+
+### Some Thresholds (RANDOMLY CHOOSEN)
+
+| Parameter | Value | Description |
+|-----------|--------|-------------|
+| Arbitrage Threshold | 1% (100 bp) | Minimum price difference to trigger arbitrage |
+| Rebalance Cooldown | 1 hour | Minimum time between rebalancing operations |
+| Default Imbalance Threshold | 5% | Default pool imbalance trigger level |
+| Max Imbalance Threshold | 10% | Maximum allowed imbalance threshold |
+| Price Precision | 18 decimals | Price data precision factor |
+
+
 
 ### Test
 
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+```js
+forge test --match-path test/hook-rebase-fixed.t.sol
 ```
