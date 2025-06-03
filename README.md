@@ -1,6 +1,6 @@
 ### Summary
 
-This Uniswap V4 hook is about cross-chain liquidity rebalancing and arbitrage benifits. Though the token cross-chain rebasing part is learned and executed from this [repo](https://github.com/Cyfrin/foundry-cross-chain-rebase-token-cu)
+This Uniswap V4 hook is about cross-chain liquidity rebalancing and arbitrage benifits. Though the token cross-chain rebasing part is learned and applied from this [repo](https://github.com/Cyfrin/foundry-cross-chain-rebase-token-cu)
 
 It automatically detects arbitrage opportunities and pool imbalances, then triggers cross-chain rebalancing operations to maintain optimal liquidity efficiency.
 
